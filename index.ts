@@ -29,7 +29,7 @@ class AllPosts {
 
 const createHandler = async () => {
   const schema = await buildSchema({ resolvers: [AllPosts] });
-  const server = new ApolloServer({ schema });
+  const server = new ApolloServer({ schema, playground: { endpoint: 'http://localhost:3000/dev/graphql' } });
 
   const config = {
     cors: {
