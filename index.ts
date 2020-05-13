@@ -1,16 +1,48 @@
 import 'reflect-metadata';
 import { ApolloServer } from 'apollo-server-lambda';
-import { Resolver, Query, buildSchemaSync } from 'type-graphql';
+import { Resolver, Query, buildSchema, ObjectType, Field } from 'type-graphql';
+import { APIGatewayProxyEvent, Context, Callback } from 'aws-lambda';
+import * as request from 'request-promise';
+
+@ObjectType()
+class Post {
+  @Field()
+  userId: Number;
+
+  @Field()
+  id: Number;
+
+  @Field()
+  title: String;
+
+  @Field()
+  body: String;
+}
 
 @Resolver()
-class HelloResolver {
-  @Query(() => String)
-  async helloWorld() {
-    return 'Hello World!';
+class AllPosts {
+  @Query(() => [Post])
+  async allPosts() {
+    return await request.get({ uri: 'https://jsonplaceholder.typicode.com/posts', json: true });
   }
 }
 
-const schema = buildSchemaSync({ resolvers: [HelloResolver] });
-const server = new ApolloServer({ schema });
+const createHandler = async () => {
+  const schema = await buildSchema({ resolvers: [AllPosts] });
+  const server = new ApolloServer({ schema });
 
-module.exports.graphql = server.createHandler();
+  const config = {
+    cors: {
+      origin: '*',
+      credentials: true,
+      methods: ['GET', 'POST'],
+      allowedHeaders: ['Content-Type', 'Origin', 'Accept'],
+    },
+  };
+
+  return server.createHandler(config);
+};
+
+export const graphql = (event: APIGatewayProxyEvent, context: Context, callback: Callback) => {
+  createHandler().then(handler => handler(event, context, callback));
+};
