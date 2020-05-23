@@ -20,7 +20,7 @@ class Post {
 }
 
 @Resolver()
-class AllPosts {
+class Posts {
   @Query(() => [Post])
   async allPosts() {
     return await request.get({ uri: 'https://jsonplaceholder.typicode.com/posts', json: true });
@@ -28,8 +28,11 @@ class AllPosts {
 }
 
 const createHandler = async () => {
-  const schema = await buildSchema({ resolvers: [AllPosts] });
-  const server = new ApolloServer({ schema, playground: { endpoint: 'http://localhost:3000/dev/graphql' } });
+  const schema = await buildSchema({ resolvers: [Posts] });
+  const server = new ApolloServer({
+    schema,
+    playground: { endpoint: '/dev/graphql' },
+  });
 
   const config = {
     cors: {
