@@ -13,7 +13,7 @@
   "devDependencies": {
     "@types/request-promise": "^4.1.46",
     "aws-lambda": "^1.0.6",
-    "serverless-offline": "^6.1.5",
+    "serverless-offline": "^12.0.4",
     "serverless-plugin-typescript": "^1.1.9",
     "typescript": "^3.9.2"
   }
